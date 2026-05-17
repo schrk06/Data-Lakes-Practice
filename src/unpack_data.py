@@ -29,8 +29,30 @@ def unpack_data(input_dir: str, output_file: str) -> None:
     input_path = Path(input_dir)
     output_path = Path(output_file)
 
-    # TODO: implement the unpacking logic
-    pass
+    combined_data = []
+    directories = [x for x in input_path.iterdir() if x.is_dir()]
+    for x in directories:
+        for file in x.iterdir():
+            if file.is_file() and "Zone.Identifier" not in file.name:
+
+                try:
+                    df = pd.read_csv(file)
+                    combined_data.append(df)
+
+                    print(f"Loaded: {file}")
+
+                except Exception as e:
+                    print(f"Skipping {file}: {e}")
+
+
+
+    if combined_data:
+        final_df = pd.concat(combined_data, ignore_index=True)
+
+        final_df.to_csv(output_path,index=False )
+        print(len(final_df))
+
+
 
 
 if __name__ == "__main__":
