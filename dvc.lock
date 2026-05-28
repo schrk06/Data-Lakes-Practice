@@ -1,0 +1,71 @@
+schema: '2.0'
+stages:
+  unpack:
+    cmd: python src/unpack_data.py --input_dir ./data/bronze/random_split/ 
+      --bucket_name raw --output_file_name combined_raw.csv
+    deps:
+    - path: data/bronze/random_split/
+      hash: md5
+      md5: 0c1169f1a8d83c06c20f6d0982b8037d.dir
+      size: 651156798
+      nfiles: 200
+    - path: src/unpack_data.py
+      hash: md5
+      md5: 2150b0e9175fd5a7b7c43487992f092e
+      size: 3827
+    outs:
+    - path: remote://raw/combined_raw.csv
+      hash: md5
+      etag: 2b58f263e22a0a1b620158540a1379c2
+      size: 651142665
+  preprocess:
+    cmd: python src/preprocess_to_staging.py --bucket_raw raw --bucket_staging 
+      staging --input_file combined_raw.csv --output_prefix preprocessed
+    deps:
+    - path: remote://raw/combined_raw.csv
+      hash: md5
+      etag: 2b58f263e22a0a1b620158540a1379c2
+      size: 651142665
+    - path: src/preprocess_to_staging.py
+      hash: md5
+      md5: 4e3f17ddf4db68153bd71febee233f11
+      size: 8527
+    outs:
+    - path: remote://staging/preprocessed_class_weights.json
+      hash: md5
+      etag: 355e5eefe29fd790a9ac93b551dae760
+      size: 459287
+    - path: remote://staging/preprocessed_dev.csv
+      hash: md5
+      etag: 6338578ee0907ed9a1e9f407117a53a7
+      size: 61299065
+    - path: remote://staging/preprocessed_label_mapping.json
+      hash: md5
+      etag: 1ec516ac2d357ed9794d89ea8406a657
+      size: 392344
+    - path: remote://staging/preprocessed_test.csv
+      hash: md5
+      etag: 787b1f4a6610d8817fe6d02074c5b553
+      size: 61478705
+    - path: remote://staging/preprocessed_train.csv
+      hash: md5
+      etag: 050a71ef54d9023c073fd90ada7639e3
+      size: 481982644
+  curate:
+    cmd: python src/process_to_curated.py --bucket_staging staging 
+      --bucket_curated curated --input_file preprocessed_train.csv --output_file
+      tokenized_train.csv
+    deps:
+    - path: remote://staging/preprocessed_train.csv
+      hash: md5
+      etag: 050a71ef54d9023c073fd90ada7639e3
+      size: 481982644
+    - path: src/process_to_curated.py
+      hash: md5
+      md5: ac8ff74bc62d201f7278ffd9b7105fac
+      size: 2501
+    outs:
+    - path: remote://curated/tokenized_train.csv
+      hash: md5
+      etag: 9b0502eed62efd4b7a96130a4b4a2ccb
+      size: 1715734663

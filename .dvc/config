@@ -1,0 +1,25 @@
+[core]
+    remote = myremote
+['remote "localstack-s3"']
+    url = s3://dvc-store
+    endpointurl = http://localhost:4566
+['remote "myremote"']
+    url = s3://dvc-store
+    endpointurl = http://localhost:4566
+    access_key_id = test
+    secret_access_key = test
+['remote "raw"']
+    url = s3://raw
+    endpointurl = http://localhost:4566
+    access_key_id = test
+    secret_access_key = test
+['remote "staging"']
+    url = s3://staging
+    endpointurl = http://localhost:4566
+    access_key_id = test
+    secret_access_key = test
+['remote "curated"']
+    url = s3://curated
+    endpointurl = http://localhost:4566
+    access_key_id = test
+    secret_access_key = test

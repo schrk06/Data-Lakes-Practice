@@ -1,0 +1,49 @@
+stages:
+  unpack:
+    cmd: >-
+      python src/unpack_data.py
+      --input_dir ./data/bronze/random_split/
+      --bucket_name raw
+      --output_file_name combined_raw.csv
+    deps:
+      - src/unpack_data.py
+      - data/bronze/random_split/
+    outs:
+      - remote://raw/combined_raw.csv:
+          cache: false
+
+  preprocess:
+    cmd: >-
+      python src/preprocess_to_staging.py
+      --bucket_raw raw
+      --bucket_staging staging
+      --input_file combined_raw.csv
+      --output_prefix preprocessed
+    deps:
+      - src/preprocess_to_staging.py
+      - remote://raw/combined_raw.csv
+    outs:
+      - remote://staging/preprocessed_train.csv:
+          cache: false
+      - remote://staging/preprocessed_dev.csv:
+          cache: false
+      - remote://staging/preprocessed_test.csv:
+          cache: false
+      - remote://staging/preprocessed_label_mapping.json:
+          cache: false
+      - remote://staging/preprocessed_class_weights.json:
+          cache: false
+
+  curate:
+    cmd: >-
+      python src/process_to_curated.py
+      --bucket_staging staging
+      --bucket_curated curated
+      --input_file preprocessed_train.csv
+      --output_file tokenized_train.csv
+    deps:
+      - src/process_to_curated.py
+      - remote://staging/preprocessed_train.csv
+    outs:
+      - remote://curated/tokenized_train.csv:
+          cache: false
